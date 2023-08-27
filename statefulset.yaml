@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      volumes:
+      - name: jenkins-storage
+        persistentVolumeClaim:
+          claimName: pv-claim
+      containers:
+        - name: jenkins
+          image: jenkins/jenkins:lts
+          ports:
+            - containerPort: 8080
+            - containerPort: 50000
+          volumeMounts:
+            - name: jenkins-storage
+              mountPath: /var/jenkins_home
+          securityContext:
+              runAsUser: 0  # Run as root user, as the minikube is a docker container it doesn't have permissions to create files
